@@ -34,11 +34,14 @@ class OverviewViewModel : ViewModel() {
     // The internal MutableLiveData that stores the status of the most recent request
     private val _status = MutableLiveData<MarsApiStatus>()
 
-    private val _photos = MutableLiveData<List<MarsPhoto>>()
-    val photos: LiveData<List<MarsPhoto>> = _photos
-
     // The external immutable LiveData for the request status
     val status: LiveData<MarsApiStatus> = _status
+
+    // Internally, we use a MutableLiveData, because we will be updating the List of MarsPhoto with new values
+    private val _photos = MutableLiveData<List<MarsPhoto>>()
+
+    // The external LiveData interface to the property is immutable, so only this class can modify
+    val photos: LiveData<List<MarsPhoto>> = _photos
 
     /**
      * Call getMarsPhotos() on init so we can display status immediately.
@@ -52,6 +55,7 @@ class OverviewViewModel : ViewModel() {
      * [MarsPhoto] [List] [LiveData].
      */
     private fun getMarsPhotos() {
+        // ViewModelScope to launch the coroutine and make the Retrofit network call in the background.
         viewModelScope.launch {
             MarsApiStatus.LOADING
             try {
